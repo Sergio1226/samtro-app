@@ -11,10 +11,6 @@ pub fn get_connection() -> Result<Connection> {
 
     // Creo la tabla de usuario
     conn.execute_batch(
-        "CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-        );",)?;
+        "CREATE TABLE IF NOT EXISTS users ( id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE NOT NULL, password TEXT NOT NULL);",)?;
     Ok(conn)
 }

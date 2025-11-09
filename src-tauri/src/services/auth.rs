@@ -1,5 +1,6 @@
-use crate::{errors::{AppError, AppResult}, models::User, services::user_repo};
-
+use crate::{errors::{AppError, AppResult}};
+use crate::services::user_repo;
+use crate::models::User;
 pub struct AuthService;
 
 impl AuthService {
