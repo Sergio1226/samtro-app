@@ -9,3 +9,4 @@ pub mod product;
 pub mod stock;
 
 pub use user::User;
+pub use product::Product;

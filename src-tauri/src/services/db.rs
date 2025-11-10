@@ -12,5 +12,19 @@ pub fn get_connection() -> Result<Connection> {
     // Creo la tabla de usuario
     conn.execute_batch(
         "CREATE TABLE IF NOT EXISTS users ( id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE NOT NULL, password TEXT NOT NULL);",)?;
+    
+    // Creo la tabla de productos
+    conn.execute_batch(
+        "CREATE TABLE IF NOT EXISTS products (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            code TEXT UNIQUE NOT NULL,
+            name TEXT NOT NULL,
+            category TEXT,
+            price INTEGER NOT NULL,
+            stock INTEGER NOT NULL,
+            minimum INTEGER NOT NULL,
+            description TEXT
+        );",
+    )?;
     Ok(conn)
 }
