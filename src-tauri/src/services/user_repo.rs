@@ -1,8 +1,9 @@
 use rusqlite::{params, Result};
 use super::db;
-use crate::models::user::User;
+use crate::{errors::AppError, models::user::User};
 
 // funcion para crear un usuario nuevo
+#[warn(dead_code, unused)]
 pub fn insert_user(username: &str, password: &str) -> Result<()> {
     // Establece conexion con la base de datos;
     let conn = db::get_connection()?;
@@ -30,7 +31,7 @@ pub fn insert_user(username: &str, password: &str) -> Result<()> {
 }
 
 // Buscar usuario por nombre (Solo lo voy a usar una vez JAJAJAJ)
-pub fn find_user(username: &str) -> Result<Option<User>> {
+pub fn find_user(username: &str) -> Result<Option<User>, AppError> {
     let conn = db::get_connection()?;
     let mut stmt = conn.prepare("SELECT id, username, password FROM users WHERE username = ?1")?;
 

@@ -1,6 +1,5 @@
-use crate::models::product::{Product};
+use crate::{models::product::Product};
 use super::db;
-use crate::errors::AppError;
 use rusqlite::{Result, params};
 
 // funcion para insertar producto nuevo
@@ -16,7 +15,7 @@ pub fn insert_product(product: &Product) -> Result<()> {
 }
 
 // Busco producto por código
-pub fn find_product_by_code(code: String) -> Result<Option<Product>, rusqlite::Error>{
+pub fn find_product_by_code(code: String) -> Result<Option<Product>>{
     // Establezco conexion con la db
     let conn = db::get_connection()?;
     // Hago la consulta de los datos
