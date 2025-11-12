@@ -6,7 +6,7 @@ cuales son los modulos
 
 pub mod user;
 pub mod product;
-pub mod stock;
+pub mod movement;
 
 pub use user::User;
 pub use product::Product;

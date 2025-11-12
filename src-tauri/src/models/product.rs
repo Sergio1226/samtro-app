@@ -8,5 +8,6 @@ pub struct Product {
     pub price: i32,
     pub stock: i32,
     pub minimum: i32,
-    pub description: String
+    pub description: String,
+    pub active: bool,
 }

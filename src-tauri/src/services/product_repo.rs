@@ -8,8 +8,8 @@ pub fn insert_product(product: &Product) -> Result<()> {
     let conn = db::get_connection()?;
 
     // inserto en la db el producto
-    conn.execute("INSERT INTO products (code, name, category, price, stock, minimum, description) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-    params![product.code, product.name, product.category, product.price, product.stock, product.minimum, product.description])?;
+    conn.execute("INSERT INTO products (code, name, category, price, stock, minimum, description, active) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+    params![product.code, product.name, product.category, product.price, product.stock, product.minimum, product.description, true])?;
 
     Ok(())
 }
@@ -19,7 +19,7 @@ pub fn find_product_by_code(code: String) -> Result<Option<Product>>{
     // Establezco conexion con la db
     let conn = db::get_connection()?;
     // Hago la consulta de los datos
-    let mut stmt = conn.prepare("SELECT code, name, category, price, stock, minimum, description FROM products WHERE code = ?1")?;
+    let mut stmt = conn.prepare("SELECT code, name, category, price, stock, minimum, description, active FROM products WHERE code = ?1")?;
     let mut rows = stmt.query(params![code])?;
 
     // En caso de no estar vacio, retornar en formato de objeto
@@ -32,6 +32,7 @@ pub fn find_product_by_code(code: String) -> Result<Option<Product>>{
             stock: row.get(4)?,
             minimum: row.get(5)?,
             description: row.get(6)?,
+            active: row.get(7)?,
         }))
     }else{
         Ok(None)
@@ -43,6 +44,19 @@ pub fn stock_out(code:String, cant: i32) -> Result<Option<Product>, rusqlite::Er
 
     if let Some(mut product) = product_busq {
         product.stock -= cant;
+        let _ = update_product_stock(&product);
+        Ok(Some(product))
+    }else {
+        print!("JAJAJAJJ qué?");
+        Ok(None)
+    }
+}
+
+pub fn stock_in(code:String, cant: i32) -> Result<Option<Product>, rusqlite::Error>{
+    let product_busq = find_product_by_code(code)?;
+
+    if let Some(mut product) = product_busq {
+        product.stock += cant;
         let _ = update_product_stock(&product);
         Ok(Some(product))
     }else {
@@ -63,7 +77,7 @@ pub fn update_product_stock(product: &Product) -> Result<()>{
 pub fn all_products() ->Result<Vec<Product>, String> {
     let conn = db::get_connection().map_err(|e| e.to_string())?;
 
-    let mut stmt = conn.prepare("SELECT code, name, category, price, stock, minimum, description FROM products").map_err(|e| e.to_string())?;
+    let mut stmt = conn.prepare("SELECT code, name, category, price, stock, minimum, description, active FROM products").map_err(|e| e.to_string())?;
 
     let rows = stmt.query_map([], |row|{
         Ok(Product {
@@ -74,13 +88,17 @@ pub fn all_products() ->Result<Vec<Product>, String> {
             stock: row.get(4)?,
             minimum: row.get(5)?,
             description: row.get(6)?,
+            active: row.get(7)?,
         })
     }).map_err(|e| e.to_string())?;
 
     // Cambio los resultados a un vector
     let mut products = Vec::new();
-    for product in rows {
-        products.push(product.map_err(|e| e.to_string())?);
+    for row in rows {
+        let product = row.map_err(|e| e.to_string())?;
+        if product.active {
+            products.push(product);
+        }
     }
     println!("{:#?}", products);
     Ok(products)

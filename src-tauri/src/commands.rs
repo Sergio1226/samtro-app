@@ -74,3 +74,12 @@ pub async fn stock_out(code:String, cant: i32) -> Result<Product, String>{
         Err(_) => Err(" JAJA fallo el stock_out".into())
     }
 }
+
+#[tauri::command]
+pub async fn stock_in(code:String, cant: i32) -> Result<Product, String>{
+    match product_repo::stock_in(code, cant) {
+        Ok(Some(product)) => Ok(product),
+        Ok(None) => Err("JAJA fallo el get_product_by_code".into()),
+        Err(_) => Err(" JAJA fallo el stock_in".into())
+    }
+}
