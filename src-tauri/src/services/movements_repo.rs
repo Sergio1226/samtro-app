@@ -21,7 +21,6 @@ pub fn get_last_10_moves() -> Result<Vec<Move>, rusqlite::Error> {
             type_move: row.get(3)?
         })
     })?;
-
     let mut res = Vec::new();
     for m in moves_iter{
         res.push(m?);

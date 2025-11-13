@@ -18,11 +18,6 @@ pub struct LoginResponse {
     pub username: String,
 }
 
-#[derive(Serialize)]
-pub struct DefaultResponse{
-    pub success: bool
-}
-
 // Cuando llamo login con el payload, llama  la funcion del auth
 // si el auth dice q shi, retorno la respuesta que contiene un booleano string y el id del usuario
 #[tauri::command]
@@ -90,6 +85,22 @@ pub async fn get_last_10_moves() -> Result<Vec<Move>, String> {
     let moves = crate::services::movements_repo::get_last_10_moves();
     match moves {
         Ok(moves) => Ok(moves),
+        Err(e) => Err(e.to_string())
+    }
+}
+
+#[tauri::command]
+pub async fn update_product(product: Product) -> Result<String, String> {
+    match product_repo::update_product(&product) {
+        Ok(_) => Ok("Producto actualizado con exito".into()),
+        Err(e) => Err(e.to_string())
+    }
+}
+
+#[tauri::command]
+pub async fn disable_product(code: String) -> Result<String, String> {
+    match product_repo::disable_product(code) {
+        Ok(_) => Ok("Producto desabilitado con exito".into()),
         Err(e) => Err(e.to_string())
     }
 }

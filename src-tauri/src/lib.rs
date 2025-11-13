@@ -26,12 +26,15 @@ pub fn run() {
             commands::get_all_products,
             commands::stock_out,
             commands::stock_in,
-            commands::get_last_10_moves
+            commands::get_last_10_moves,
+            commands::update_product,
+            commands::disable_product
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
 
+// Prueba de productos por código
 pub fn test_product_by_code(){
     let _ = models::product::Product {
         code: "TP01".into(),
@@ -53,6 +56,7 @@ pub fn test_product_by_code(){
     };
 }
 
+// Prueba de productos
 pub fn test_products(){
     // Prueba para ver si funciona  y se agrega un producto
     let product = models::product::Product {

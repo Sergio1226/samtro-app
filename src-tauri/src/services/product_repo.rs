@@ -55,6 +55,16 @@ pub fn stock_out(code:String, cant: i32) -> Result<Option<Product>, rusqlite::Er
 
     if let Some(mut product) = product_busq {
         product.stock -= cant;
+
+        // Crea un movimiento y lo guarda en la db
+        let mov = Move {
+            product_code: product.code.clone(),
+            stock: cant*-1,
+            date: Local::now().date_naive().to_string(),
+            type_move: "Retirar stock".into()
+        };
+        let _ = movements_repo::add_move(&mov);
+
         let _ = update_product_stock(&product);
         Ok(Some(product))
     }else {
@@ -69,6 +79,16 @@ pub fn stock_in(code:String, cant: i32) -> Result<Option<Product>, rusqlite::Err
 
     if let Some(mut product) = product_busq {
         product.stock += cant;
+
+        // Crea un movimiento y lo guarda en la db
+        let mov = Move {
+            product_code: product.code.clone(),
+            stock: cant,
+            date: Local::now().date_naive().to_string(),
+            type_move: "Ingresar stock".into()
+        };
+        let _ = movements_repo::add_move(&mov);
+
         let _ = update_product_stock(&product);
         Ok(Some(product))
     }else {
@@ -114,6 +134,33 @@ pub fn all_products() ->Result<Vec<Product>, String> {
             products.push(product);
         }
     }
-    println!("{:#?}", products);
     Ok(products)
+}
+
+// funcion para actualizar un producto
+pub fn update_product(product: &Product) -> Result<(), rusqlite::Error> {
+    // Conecto con la base de datos
+    let conn = db::get_connection()?;
+
+    // inserto en la db el producto
+    conn.execute(
+        "UPDATE products SET name = ?1, category = ?2, price = ?3, stock = ?4, minimum = ?5, description = ?6, active = ?7 WHERE code = ?8",
+    params![product.code, product.name, product.category, product.price, product.stock, product.minimum, product.description, true])?;
+
+    // Crea un movimiento y lo guarda en la db
+    let mov = Move {
+        product_code: product.code.clone(),
+        stock: product.stock,
+        date: Local::now().date_naive().to_string(),
+        type_move: "Editar producto".into()
+    };
+    let _ = movements_repo::add_move(&mov);
+    Ok(())
+}
+
+// Inhabilitar producto
+pub fn disable_product(code: String) -> Result<(), rusqlite::Error> {
+    let conn = db::get_connection()?;
+    conn.execute("UPDATE products SET active = ?1 WHERE code = ?2", params![false, code])?;
+    Ok(())
 }
